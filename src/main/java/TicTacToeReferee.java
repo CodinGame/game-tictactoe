@@ -34,12 +34,15 @@ public class TicTacToeReferee implements Referee {
 
     @Override
     public Properties init(int playerCount, Properties params) {
+//    	System.err.println("test init");
+    	
         for (TicTacToePlayer player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
         }
 
         // Send game state to view
         gameManager.setViewData(grid);
+        gameManager.setTurnMaxTime(1000000);
 
         //entityManager.createWorld(1000, 563);
 
@@ -111,6 +114,7 @@ public class TicTacToeReferee implements Referee {
 
     @Override
     public void gameTurn(int turn) {
+//    	System.err.println("test turn");
         List<String> gameSummary = new ArrayList<>();
         List<Tooltip> tooltips = new ArrayList<>();
         
@@ -165,6 +169,13 @@ public class TicTacToeReferee implements Referee {
             tooltips.add(new Tooltip(player.getIndex(), String.format("$%d timeout!", player.getIndex())));
 
             player.deactivate("Timeout!");
+            player.setScore(-1);
+            gameManager.endGame();
+        } catch (NumberFormatException e) {
+            gameSummary.add(GameManager.getColoredReason(true, String.format("$%d invalid output!", player.getIndex())));
+            tooltips.add(new Tooltip(player.getIndex(), String.format("$%d invalid output!", player.getIndex())));
+
+            player.deactivate("Invalid output!");
             player.setScore(-1);
             gameManager.endGame();
         }

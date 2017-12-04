@@ -11,7 +11,6 @@
 			<groupId>com.codingame.gameengine</groupId>
 			<artifactId>core</artifactId>
 			<version>0.1-SNAPSHOT</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
