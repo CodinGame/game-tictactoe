@@ -41,6 +41,13 @@ public class TicTacToeReferee implements Referee {
 
         }
 
+        entityManager.createSprite()
+                .setX(0)
+                .setY(0)
+                .setImage("background")
+                .setAnchor(0)
+                .setScale(1.0);
+
         gameManager.setFrameDuration(500);
 
         drawGrid();
