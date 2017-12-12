@@ -7,9 +7,6 @@ import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.GameManager;
 import com.codingame.gameengine.core.Referee;
 import com.codingame.gameengine.module.entities.EntityManager;
-import com.codingame.gameengine.module.entities.Group;
-import com.codingame.gameengine.module.entities.Line;
-import com.codingame.gameengine.module.entities.Sprite;
 import com.google.inject.Inject;
 
 class TicTacToePlayer extends AbstractPlayer {
@@ -23,15 +20,12 @@ public class TicTacToeReferee implements Referee {
     @Inject private GameManager<TicTacToePlayer> gameManager;
     @Inject private EntityManager entityManager;
     private int[][] grid = new int[3][3];
-    private List<Sprite> things = new ArrayList<>();
-    private Group group;
 
-    private static final int PLAYER_WIDTH = 100;
     private static final int SPACE_BETWEEN_CELLS = 250;
     private static final int LINE_WIDTH = 10;
     private static final int LINE_COLOR = 0xff0000;
-    private static final int GRID_ORIGIN_Y = (int) Math.round(0 / 2 - SPACE_BETWEEN_CELLS);
-    private static final int GRID_ORIGIN_X = (int) Math.round(0 / 2 - SPACE_BETWEEN_CELLS);
+    private static final int GRID_ORIGIN_Y = (int) Math.round(1080 / 2 - SPACE_BETWEEN_CELLS);
+    private static final int GRID_ORIGIN_X = (int) Math.round(1920 / 2 - SPACE_BETWEEN_CELLS);
 
     @Override
     public Properties init(int playerCount, Properties params) {
@@ -47,25 +41,7 @@ public class TicTacToeReferee implements Referee {
 
         }
 
-        // Send game state to view
-        gameManager.setViewData(grid);
-        entityManager.createRectangle()
-                .setX(0)
-                .setY(0)
-                .setWidth(1920)
-                .setHeight(1080)
-                .setLineWidth(20)
-                .setLineColor(0xFF0000);
-        
-        entityManager.createText("Hello world !")
-                .setX(100)
-                .setY(100)
-                .setZIndex(20)
-                .setFontSize(90)
-                .setFillColor(0xFFFFFF)
-                .setRotation(0.2);
-
-        gameManager.setFrameDuration(2000);
+        gameManager.setFrameDuration(500);
 
         drawGrid();
 
@@ -73,31 +49,30 @@ public class TicTacToeReferee implements Referee {
     }
 
     private void drawGrid() {
-        Line l1 = entityManager.createLine().setX(GRID_ORIGIN_X - SPACE_BETWEEN_CELLS / 2)
+        entityManager.createLine().setX(GRID_ORIGIN_X - SPACE_BETWEEN_CELLS / 2)
                 .setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
                 .setY(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS / 2).setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR).setZIndex(-20);
-        Line l2 = entityManager.createLine().setX(GRID_ORIGIN_X - SPACE_BETWEEN_CELLS / 2)
+                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR);
+        entityManager.createLine().setX(GRID_ORIGIN_X - SPACE_BETWEEN_CELLS / 2)
                 .setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
                 .setY(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
                 .setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR).setZIndex(-20);
+                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR);
 
-        Line l3 = entityManager.createLine().setX(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS / 2).setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS / 2)
+        entityManager.createLine().setX(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS / 2).setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS / 2)
                 .setY(GRID_ORIGIN_Y - SPACE_BETWEEN_CELLS / 2).setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR).setZIndex(-20);
-        Line l4 = entityManager.createLine().setX(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
+                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR);
+        entityManager.createLine().setX(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
                 .setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2).setY(GRID_ORIGIN_Y - SPACE_BETWEEN_CELLS / 2)
                 .setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
                 .setLineWidth(LINE_WIDTH)
-                .setLineColor(LINE_COLOR).setZIndex(-20);
+                .setLineColor(LINE_COLOR);
 
-        group = entityManager.createGroup(l1, l2, l3, l4).setX(1920 / 2).setY(1080 / 2);
     }
 
     private void drawVictoryLine(int row1, int col1, int row2, int col2, TicTacToePlayer winner) {
 
-        Line l = entityManager.createLine()
+        entityManager.createLine()
                 .setX(GRID_ORIGIN_X + col1 * SPACE_BETWEEN_CELLS)
                 .setY(GRID_ORIGIN_Y + row1 * SPACE_BETWEEN_CELLS)
                 .setX2(GRID_ORIGIN_X + col2 * SPACE_BETWEEN_CELLS)
@@ -105,7 +80,6 @@ public class TicTacToeReferee implements Referee {
                 .setLineWidth(LINE_WIDTH)
                 .setLineColor(winner.getColor())
                 .setZIndex(30);
-        group.add(l);
     }
 
     private int checkWinner() {
@@ -166,30 +140,15 @@ public class TicTacToeReferee implements Referee {
             grid[targetRow][targetCol] = player.getIndex() + 1;
 
             if (player.getIndex() == 1) {
-                Sprite circle = entityManager.createSprite().setX(GRID_ORIGIN_X + targetCol * SPACE_BETWEEN_CELLS)
+                entityManager.createSprite().setX(GRID_ORIGIN_X + targetCol * SPACE_BETWEEN_CELLS)
                         .setY(GRID_ORIGIN_Y + targetRow * SPACE_BETWEEN_CELLS)
                         .setImage(player.getAvatar());
-                things.add(circle);
-                circle.setScale(0);
-                entityManager.commitEntityState(circle, 0);
-                circle.setScale(1);
-                group.add(circle);
 
             } else {
-                Sprite cross = entityManager.createSprite().setX(GRID_ORIGIN_X + targetCol * SPACE_BETWEEN_CELLS)
+                entityManager.createSprite().setX(GRID_ORIGIN_X + targetCol * SPACE_BETWEEN_CELLS)
                         .setY(GRID_ORIGIN_Y + targetRow * SPACE_BETWEEN_CELLS)
                         .setImage(player.getAvatar());
-                things.add(cross);
-                cross.setScale(0);
-                entityManager.commitEntityState(cross, 0);
-                cross.setScale(1);
-                group.add(cross);
             }
-
-            things.forEach(t -> {
-                t.setRotation(Math.random() * 2 * Math.PI);
-            });
-
         } catch (NumberFormatException e) {
             player.deactivate("Wrong output!");
             player.setScore(-1);
@@ -204,8 +163,6 @@ public class TicTacToeReferee implements Referee {
         // check winner
         int winner = checkWinner();
         if (winner > 0) {
-            gameManager.setFrameDuration(10000);
-
             gameSummary.add(GameManager.getColoredReason(false, String.format("$%d won!", winner)));
 
             gameManager.getPlayer(winner - 1).setScore(1);
@@ -213,7 +170,6 @@ public class TicTacToeReferee implements Referee {
         }
 
         // Send game state to view
-        gameManager.setViewData(grid);
         gameManager.setGameSummary(gameSummary);
     }
 }

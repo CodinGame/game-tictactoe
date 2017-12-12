@@ -3,23 +3,25 @@ import java.util.Scanner;
 
 public class Player1 {
     public static void main(String[] args) {
-        System.err.println("init error");
-
         Scanner scanner = new Scanner(System.in);
         int myId = scanner.nextInt();
         int[][] grid = new int[3][3];
-        Random r = new Random();
-
-        int i = 0;
+        Random random = new Random();
 
         while (true) {
-            for (int l = 0; l < 3; l++) {
+            for (int r = 0; r < 3; r++) {
                 for (int c = 0; c < 3; c++) {
-                    grid[c][l] = scanner.nextInt();
+                    grid[r][c] = scanner.nextInt();
                 }
             }
-            System.err.println(String.format("loop error : %d", i++));
-            System.out.println(String.format("%d %d", r.nextInt(3), r.nextInt(3)));
+
+            int r, c;
+            do {
+                r = random.nextInt(3);
+                c = random.nextInt(3);
+            } while (grid[r][c] != 0);
+
+            System.out.println(String.format("%d %d", r, c));
         }
     }
 }
