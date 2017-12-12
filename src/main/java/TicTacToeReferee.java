@@ -30,23 +30,26 @@ public class TicTacToeReferee implements Referee {
     @Override
     public Properties init(int playerCount, Properties params) {
 
+        entityManager.createSprite()
+                .setImage("background")
+                .setAnchor(0);
+
         for (TicTacToePlayer player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
             entityManager.createText(player.getNickname())
-                    .setX(100)
-                    .setY(200 + 100 * player.getIndex())
+                    .setX(180 + (player.getIndex() * 1400))
+                    .setY(50)
                     .setZIndex(20)
                     .setFontSize(90)
                     .setFillColor(player.getColor());
 
-        }
+            entityManager.createSprite()
+                    .setX(100 + (player.getIndex() * 1400))
+                    .setY(90)
+                    .setZIndex(20)
+                    .setImage(player.getAvatar());
 
-        entityManager.createSprite()
-                .setX(0)
-                .setY(0)
-                .setImage("background")
-                .setAnchor(0)
-                .setScale(1.0);
+        }
 
         gameManager.setFrameDuration(500);
 
