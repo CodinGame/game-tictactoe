@@ -55,35 +55,39 @@ public class TicTacToeReferee implements Referee {
         return params;
     }
 
-    private void drawGrid() {
-        entityManager.createLine().setX(GRID_ORIGIN_X - SPACE_BETWEEN_CELLS / 2)
-                .setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
-                .setY(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS / 2).setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR);
-        entityManager.createLine().setX(GRID_ORIGIN_X - SPACE_BETWEEN_CELLS / 2)
-                .setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
-                .setY(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
-                .setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR);
+    private int convertX(double unit) {
+        return (int) (GRID_ORIGIN_X + unit * SPACE_BETWEEN_CELLS);
+    }
 
-        entityManager.createLine().setX(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS / 2).setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS / 2)
-                .setY(GRID_ORIGIN_Y - SPACE_BETWEEN_CELLS / 2).setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH).setLineColor(LINE_COLOR);
-        entityManager.createLine().setX(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2)
-                .setX2(GRID_ORIGIN_X + SPACE_BETWEEN_CELLS + SPACE_BETWEEN_CELLS / 2).setY(GRID_ORIGIN_Y - SPACE_BETWEEN_CELLS / 2)
-                .setY2(GRID_ORIGIN_Y + SPACE_BETWEEN_CELLS * 2 + SPACE_BETWEEN_CELLS / 2)
-                .setLineWidth(LINE_WIDTH)
-                .setLineColor(LINE_COLOR);
+    private int convertY(double unit) {
+        return (int) (GRID_ORIGIN_Y + unit * SPACE_BETWEEN_CELLS);
+    }
+
+    private void drawGrid() {
+        double xs[] = new double[] { 0, 0, 1, 2 };
+        double x2s[] = new double[] { 2, 2, 0, 1 };
+        double ys[] = new double[] { 1, 2, 0, 0 };
+        double y2s[] = new double[] { 0, 1, 2, 2 };
+
+        for (int i = 0; i < 4; ++i) {
+            entityManager.createLine()
+                    .setX(convertX(xs[i] - 0.5))
+                    .setX2(convertX(x2s[i] + 0.5))
+                    .setY(convertY(ys[i] - 0.5))
+                    .setY2(convertY(y2s[i] + 0.5))
+                    .setLineWidth(LINE_WIDTH)
+                    .setLineColor(LINE_COLOR);
+        }
 
     }
 
     private void drawVictoryLine(int row1, int col1, int row2, int col2, TicTacToePlayer winner) {
 
         entityManager.createLine()
-                .setX(GRID_ORIGIN_X + col1 * SPACE_BETWEEN_CELLS)
-                .setY(GRID_ORIGIN_Y + row1 * SPACE_BETWEEN_CELLS)
-                .setX2(GRID_ORIGIN_X + col2 * SPACE_BETWEEN_CELLS)
-                .setY2(GRID_ORIGIN_Y + row2 * SPACE_BETWEEN_CELLS)
+                .setX(convertX(col1))
+                .setY(convertY(row1))
+                .setX2(convertX(col2))
+                .setY2(convertY(row2))
                 .setLineWidth(LINE_WIDTH)
                 .setLineColor(winner.getColor())
                 .setZIndex(30);
@@ -139,6 +143,11 @@ public class TicTacToeReferee implements Referee {
                 player.deactivate("Invalid action.");
                 player.setScore(-1);
                 gameManager.endGame();
+            } else {
+                entityManager.createSprite()
+                        .setX(convertX(targetCol))
+                        .setY(convertY(targetRow))
+                        .setImage(player.getAvatar());
             }
 
             gameSummary.add(String.format("Player %s played (%d %d)", player.getNickname(), targetRow, targetCol));
@@ -146,16 +155,6 @@ public class TicTacToeReferee implements Referee {
             // update grid
             grid[targetRow][targetCol] = player.getIndex() + 1;
 
-            if (player.getIndex() == 1) {
-                entityManager.createSprite().setX(GRID_ORIGIN_X + targetCol * SPACE_BETWEEN_CELLS)
-                        .setY(GRID_ORIGIN_Y + targetRow * SPACE_BETWEEN_CELLS)
-                        .setImage(player.getAvatar());
-
-            } else {
-                entityManager.createSprite().setX(GRID_ORIGIN_X + targetCol * SPACE_BETWEEN_CELLS)
-                        .setY(GRID_ORIGIN_Y + targetRow * SPACE_BETWEEN_CELLS)
-                        .setImage(player.getAvatar());
-            }
         } catch (NumberFormatException e) {
             player.deactivate("Wrong output!");
             player.setScore(-1);
