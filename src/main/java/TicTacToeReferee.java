@@ -28,7 +28,7 @@ public class TicTacToeReferee implements Referee {
     private static final int GRID_ORIGIN_X = (int) Math.round(1920 / 2 - CELL_SIZE);
 
     @Override
-    public Properties init(int playerCount, Properties params) {
+    public Properties init(Properties params) {
 
         // Display the background image. The asset image "background" is defined in the config.js file
         graphicEntityModule.createSprite()
