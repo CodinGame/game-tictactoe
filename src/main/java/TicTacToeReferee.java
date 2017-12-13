@@ -6,7 +6,7 @@ import com.codingame.gameengine.core.AbstractPlayer;
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.GameManager;
 import com.codingame.gameengine.core.Referee;
-import com.codingame.gameengine.module.entities.EntityManager;
+import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.google.inject.Inject;
 
 class TicTacToePlayer extends AbstractPlayer {
@@ -18,7 +18,7 @@ class TicTacToePlayer extends AbstractPlayer {
 
 public class TicTacToeReferee implements Referee {
     @Inject private GameManager<TicTacToePlayer> gameManager;
-    @Inject private EntityManager entityManager;
+    @Inject private GraphicEntityModule graphicEntityModule;
     private int[][] grid = new int[3][3];
 
     private static final int CELL_SIZE = 250;
@@ -31,20 +31,20 @@ public class TicTacToeReferee implements Referee {
     public Properties init(int playerCount, Properties params) {
 
         // Display the background image. The asset image "background" is defined in the config.js file
-        entityManager.createSprite()
+        graphicEntityModule.createSprite()
                 .setImage("background")
                 .setAnchor(0);
 
         for (TicTacToePlayer player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
-            entityManager.createText(player.getNickname())
+            graphicEntityModule.createText(player.getNickname())
                     .setX(180 + (player.getIndex() * 1400))
                     .setY(50)
                     .setZIndex(20)
                     .setFontSize(90)
                     .setFillColor(player.getColor());
 
-            entityManager.createSprite()
+            graphicEntityModule.createSprite()
                     .setX(100 + (player.getIndex() * 1400))
                     .setY(90)
                     .setZIndex(20)
@@ -74,7 +74,7 @@ public class TicTacToeReferee implements Referee {
         double y2s[] = new double[] { 0, 1, 2, 2 };
 
         for (int i = 0; i < 4; ++i) {
-            entityManager.createLine()
+            graphicEntityModule.createLine()
                     .setX(convertX(xs[i] - 0.5))
                     .setX2(convertX(x2s[i] + 0.5))
                     .setY(convertY(ys[i] - 0.5))
@@ -87,7 +87,7 @@ public class TicTacToeReferee implements Referee {
 
     private void drawVictoryLine(int row1, int col1, int row2, int col2, TicTacToePlayer winner) {
 
-        entityManager.createLine()
+        graphicEntityModule.createLine()
                 .setX(convertX(col1))
                 .setY(convertY(row1))
                 .setX2(convertX(col2))
@@ -148,7 +148,7 @@ public class TicTacToeReferee implements Referee {
                 player.setScore(-1);
                 gameManager.endGame();
             } else {
-                entityManager.createSprite()
+                graphicEntityModule.createSprite()
                         .setX(convertX(targetCol))
                         .setY(convertY(targetRow))
                         .setImage(player.getAvatar());
@@ -164,8 +164,8 @@ public class TicTacToeReferee implements Referee {
             player.setScore(-1);
             gameManager.endGame();
         } catch (TimeoutException e) {
-            gameSummary.add(GameManager.getColoredReason(true, String.format("$%d timeout!", player.getIndex())));
-            player.deactivate(String.format("$%d timeout!", player.getIndex()));
+            gameSummary.add(GameManager.formatErrorMessage(player.getNickname() + " timeout!"));
+            player.deactivate(player.getNickname() + " timeout!");
             player.setScore(-1);
             gameManager.endGame();
         }
@@ -173,7 +173,7 @@ public class TicTacToeReferee implements Referee {
         // check winner
         int winner = checkWinner();
         if (winner > 0) {
-            gameSummary.add(GameManager.getColoredReason(false, String.format("$%d won!", winner)));
+            gameSummary.add(GameManager.formatSuccessMessage(player.getNickname() + " won!"));
 
             gameManager.getPlayer(winner - 1).setScore(1);
             gameManager.endGame();
