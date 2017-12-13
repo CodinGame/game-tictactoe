@@ -21,15 +21,16 @@ public class TicTacToeReferee implements Referee {
     @Inject private EntityManager entityManager;
     private int[][] grid = new int[3][3];
 
-    private static final int SPACE_BETWEEN_CELLS = 250;
+    private static final int CELL_SIZE = 250;
     private static final int LINE_WIDTH = 10;
     private static final int LINE_COLOR = 0xff0000;
-    private static final int GRID_ORIGIN_Y = (int) Math.round(1080 / 2 - SPACE_BETWEEN_CELLS);
-    private static final int GRID_ORIGIN_X = (int) Math.round(1920 / 2 - SPACE_BETWEEN_CELLS);
+    private static final int GRID_ORIGIN_Y = (int) Math.round(1080 / 2 - CELL_SIZE);
+    private static final int GRID_ORIGIN_X = (int) Math.round(1920 / 2 - CELL_SIZE);
 
     @Override
     public Properties init(int playerCount, Properties params) {
 
+        // Display the background image. The asset image "background" is defined in the config.js file
         entityManager.createSprite()
                 .setImage("background")
                 .setAnchor(0);
@@ -59,11 +60,11 @@ public class TicTacToeReferee implements Referee {
     }
 
     private int convertX(double unit) {
-        return (int) (GRID_ORIGIN_X + unit * SPACE_BETWEEN_CELLS);
+        return (int) (GRID_ORIGIN_X + unit * CELL_SIZE);
     }
 
     private int convertY(double unit) {
-        return (int) (GRID_ORIGIN_Y + unit * SPACE_BETWEEN_CELLS);
+        return (int) (GRID_ORIGIN_Y + unit * CELL_SIZE);
     }
 
     private void drawGrid() {
