@@ -37,18 +37,18 @@ public class TicTacToeReferee implements Referee {
 
         for (TicTacToePlayer player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
-            graphicEntityModule.createText(player.getNickname())
+            graphicEntityModule.createText(player.getNicknameToken())
                     .setX(180 + (player.getIndex() * 1400))
                     .setY(50)
                     .setZIndex(20)
                     .setFontSize(90)
-                    .setFillColor(player.getColor());
+                    .setFillColor(player.getColorToken());
 
             graphicEntityModule.createSprite()
                     .setX(100 + (player.getIndex() * 1400))
                     .setY(90)
                     .setZIndex(20)
-                    .setImage(player.getAvatar());
+                    .setImage(player.getAvatarToken());
 
         }
 
@@ -93,7 +93,7 @@ public class TicTacToeReferee implements Referee {
                 .setX2(convertX(col2))
                 .setY2(convertY(row2))
                 .setLineWidth(LINE_WIDTH)
-                .setLineColor(winner.getColor())
+                .setLineColor(winner.getColorToken())
                 .setZIndex(30);
     }
 
@@ -151,10 +151,10 @@ public class TicTacToeReferee implements Referee {
                 graphicEntityModule.createSprite()
                         .setX(convertX(targetCol))
                         .setY(convertY(targetRow))
-                        .setImage(player.getAvatar());
+                        .setImage(player.getAvatarToken());
             }
 
-            gameSummary.add(String.format("Player %s played (%d %d)", player.getNickname(), targetRow, targetCol));
+            gameSummary.add(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
 
             // update grid
             grid[targetRow][targetCol] = player.getIndex() + 1;
@@ -164,8 +164,8 @@ public class TicTacToeReferee implements Referee {
             player.setScore(-1);
             gameManager.endGame();
         } catch (TimeoutException e) {
-            gameSummary.add(GameManager.formatErrorMessage(player.getNickname() + " timeout!"));
-            player.deactivate(player.getNickname() + " timeout!");
+            gameSummary.add(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
+            player.deactivate(player.getNicknameToken() + " timeout!");
             player.setScore(-1);
             gameManager.endGame();
         }
@@ -173,7 +173,7 @@ public class TicTacToeReferee implements Referee {
         // check winner
         int winner = checkWinner();
         if (winner > 0) {
-            gameSummary.add(GameManager.formatSuccessMessage(player.getNickname() + " won!"));
+            gameSummary.add(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
 
             gameManager.getPlayer(winner - 1).setScore(1);
             gameManager.endGame();
