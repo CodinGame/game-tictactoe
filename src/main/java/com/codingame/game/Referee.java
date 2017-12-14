@@ -1,23 +1,17 @@
+package com.codingame.game;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.codingame.gameengine.core.AbstractPlayer;
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
+import com.codingame.gameengine.core.AbstractReferee;
 import com.codingame.gameengine.core.GameManager;
-import com.codingame.gameengine.core.Referee;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.google.inject.Inject;
 
-class TicTacToePlayer extends AbstractPlayer {
-    @Override
-    public int getExpectedOutputLines() {
-        return 1;
-    }
-}
-
-public class TicTacToeReferee implements Referee {
-    @Inject private GameManager<TicTacToePlayer> gameManager;
+public class Referee extends AbstractReferee {
+    @Inject private GameManager<Player> gameManager;
     @Inject private GraphicEntityModule graphicEntityModule;
     private int[][] grid = new int[3][3];
 
@@ -35,7 +29,7 @@ public class TicTacToeReferee implements Referee {
                 .setImage("background")
                 .setAnchor(0);
 
-        for (TicTacToePlayer player : gameManager.getPlayers()) {
+        for (Player player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
             graphicEntityModule.createText(player.getNicknameToken())
                     .setX(180 + (player.getIndex() * 1400))
@@ -85,7 +79,7 @@ public class TicTacToeReferee implements Referee {
 
     }
 
-    private void drawVictoryLine(int row1, int col1, int row2, int col2, TicTacToePlayer winner) {
+    private void drawVictoryLine(int row1, int col1, int row2, int col2, Player winner) {
 
         graphicEntityModule.createLine()
                 .setX(convertX(col1))
@@ -129,7 +123,7 @@ public class TicTacToeReferee implements Referee {
     public void gameTurn(int turn) {
         List<String> gameSummary = new ArrayList<>();
 
-        TicTacToePlayer player = gameManager.getPlayer(turn % 2);
+        Player player = gameManager.getPlayer(turn % 2);
 
         // Send inputs
         for (int l = 0; l < 3; l++) {

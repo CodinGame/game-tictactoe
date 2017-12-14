@@ -1,4 +1,4 @@
-import { EntityManager } from './EntityManager.js';
+import { GraphicEntityModule } from './entity-module/GraphicEntityModule.js';
 
 export const assets = {
   baseUrl: '',
@@ -8,5 +8,5 @@ export const assets = {
 };
 
 export const modules = [
-	EntityManager
+	GraphicEntityModule
 ];
