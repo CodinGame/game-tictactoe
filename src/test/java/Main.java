@@ -7,7 +7,7 @@ public class Main {
         gameRunner.addAgent(Player1.class);
         gameRunner.addAgent(Player2.class);
         
-        // gameRunner.addCommandLinePlayer("python3 /home/user/player.py");
+        // gameRunner.addAgent("python3 /home/user/player.py");
         
         gameRunner.start();
     }
