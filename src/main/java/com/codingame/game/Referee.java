@@ -26,7 +26,7 @@ public class Referee extends AbstractReferee {
 
         // Display the background image. The asset image "background" is defined in the config.js file
         graphicEntityModule.createSprite()
-                .setImage("background")
+                .setImage("Background.jpg")
                 .setAnchor(0);
 
         for (Player player : gameManager.getPlayers()) {
