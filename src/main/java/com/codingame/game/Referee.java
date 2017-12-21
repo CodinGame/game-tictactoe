@@ -32,18 +32,19 @@ public class Referee extends AbstractReferee {
         for (Player player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
             graphicEntityModule.createText(player.getNicknameToken())
-                    .setX(180 + (player.getIndex() * 1400))
-                    .setY(50)
+                    .setX(180 + (player.getIndex() % 2) * 1400)
+                    .setY(50 + 100 * (player.getIndex() / 2))
                     .setZIndex(20)
                     .setFontSize(90)
                     .setFillColor(player.getColorToken())
                     .setAnchor(0);
 
             graphicEntityModule.createSprite()
-                    .setX(100 + (player.getIndex() * 1400))
-                    .setY(90)
+                    .setX(100 + (player.getIndex() % 2) * 1400)
+                    .setY(90 + 100 * (player.getIndex() / 2))
                     .setZIndex(20)
-                    .setImage(player.getAvatarToken());
+                    .setImage(player.getAvatarToken())
+                    .setAnchor(0.5);
 
         }
 
@@ -124,7 +125,7 @@ public class Referee extends AbstractReferee {
     public void gameTurn(int turn) {
         List<String> gameSummary = new ArrayList<>();
 
-        Player player = gameManager.getPlayer(turn % 2);
+        Player player = gameManager.getPlayer(turn % gameManager.getPlayerCount());
 
         // Send inputs
         for (int l = 0; l < 3; l++) {
@@ -146,7 +147,8 @@ public class Referee extends AbstractReferee {
                 graphicEntityModule.createSprite()
                         .setX(convertX(targetCol))
                         .setY(convertY(targetRow))
-                        .setImage(player.getAvatarToken());
+                        .setImage(player.getAvatarToken())
+                        .setAnchor(0.5);
             }
 
             gameSummary.add(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
