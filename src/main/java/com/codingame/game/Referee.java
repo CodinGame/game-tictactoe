@@ -36,7 +36,8 @@ public class Referee extends AbstractReferee {
                     .setY(50)
                     .setZIndex(20)
                     .setFontSize(90)
-                    .setFillColor(player.getColorToken());
+                    .setFillColor(player.getColorToken())
+                    .setAnchor(0);
 
             graphicEntityModule.createSprite()
                     .setX(100 + (player.getIndex() * 1400))
