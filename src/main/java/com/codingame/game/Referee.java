@@ -1,7 +1,5 @@
 package com.codingame.game;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
@@ -23,8 +21,7 @@ public class Referee extends AbstractReferee {
 
     @Override
     public Properties init(Properties params) {
-
-        // Display the background image. The asset image "background" is defined in the config.js file
+        // Display the background image. The asset image must be in the directory src/main/resources/view/assets
         graphicEntityModule.createSprite()
                 .setImage("Background.jpg")
                 .setAnchor(0);
@@ -82,7 +79,6 @@ public class Referee extends AbstractReferee {
     }
 
     private void drawVictoryLine(int row1, int col1, int row2, int col2, Player winner) {
-
         graphicEntityModule.createLine()
                 .setX(convertX(col1))
                 .setY(convertY(row1))
@@ -123,8 +119,6 @@ public class Referee extends AbstractReferee {
 
     @Override
     public void gameTurn(int turn) {
-        List<String> gameSummary = new ArrayList<>();
-
         Player player = gameManager.getPlayer(turn % gameManager.getPlayerCount());
 
         // Send inputs
@@ -151,7 +145,7 @@ public class Referee extends AbstractReferee {
                         .setAnchor(0.5);
             }
 
-            gameSummary.add(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
+            gameManager.addToGameSummary(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
 
             // update grid
             grid[targetRow][targetCol] = player.getIndex() + 1;
@@ -161,7 +155,7 @@ public class Referee extends AbstractReferee {
             player.setScore(-1);
             gameManager.endGame();
         } catch (TimeoutException e) {
-            gameSummary.add(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
+            gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
             player.deactivate(player.getNicknameToken() + " timeout!");
             player.setScore(-1);
             gameManager.endGame();
@@ -170,13 +164,10 @@ public class Referee extends AbstractReferee {
         // check winner
         int winner = checkWinner();
         if (winner > 0) {
-            gameSummary.add(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
+            gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
 
             gameManager.getPlayer(winner - 1).setScore(1);
             gameManager.endGame();
         }
-
-        // Send game state to view
-        gameManager.setGameSummary(gameSummary);
     }
 }
