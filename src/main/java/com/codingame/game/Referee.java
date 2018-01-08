@@ -121,8 +121,6 @@ public class Referee extends AbstractReferee {
 
     @Override
     public void gameTurn(int turn) {
-        List<String> gameSummary = new ArrayList<>();
-
         Player player = gameManager.getPlayer(turn % 2);
 
         // Send inputs
@@ -148,7 +146,7 @@ public class Referee extends AbstractReferee {
                         .setImage(player.getAvatarToken());
             }
 
-            gameSummary.add(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
+            gameManager.addToGameSummary(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
 
             // update grid
             grid[targetRow][targetCol] = player.getIndex() + 1;
@@ -158,7 +156,7 @@ public class Referee extends AbstractReferee {
             player.setScore(-1);
             gameManager.endGame();
         } catch (TimeoutException e) {
-            gameSummary.add(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
+            gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
             player.deactivate(player.getNicknameToken() + " timeout!");
             player.setScore(-1);
             gameManager.endGame();
@@ -167,13 +165,10 @@ public class Referee extends AbstractReferee {
         // check winner
         int winner = checkWinner();
         if (winner > 0) {
-            gameSummary.add(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
+            gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
 
             gameManager.getPlayer(winner - 1).setScore(1);
             gameManager.endGame();
         }
-
-        // Send game state to view
-        gameManager.setGameSummary(gameSummary);
     }
 }
