@@ -1,7 +1,5 @@
 package com.codingame.game;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
@@ -23,26 +21,27 @@ public class Referee extends AbstractReferee {
 
     @Override
     public Properties init(Properties params) {
-
-        // Display the background image. The asset image "background" is defined in the config.js file
+        // Display the background image. The asset image must be in the directory src/main/resources/view/assets
         graphicEntityModule.createSprite()
-                .setImage("Background.jpg")
+                .setImage("Background.jpg");
                 .setAnchor(0);
 
         for (Player player : gameManager.getPlayers()) {
             player.sendInputLine(String.format("%d", player.getIndex() + 1));
             graphicEntityModule.createText(player.getNicknameToken())
-                    .setX(180 + (player.getIndex() * 1400))
-                    .setY(50)
+                    .setX(180 + (player.getIndex() % 2) * 1400)
+                    .setY(50 + 100 * (player.getIndex() / 2))
                     .setZIndex(20)
                     .setFontSize(90)
-                    .setFillColor(player.getColorToken());
+                    .setFillColor(player.getColorToken())
+                    .setAnchor(0);
 
             graphicEntityModule.createSprite()
-                    .setX(100 + (player.getIndex() * 1400))
-                    .setY(90)
+                    .setX(100 + (player.getIndex() % 2) * 1400)
+                    .setY(90 + 100 * (player.getIndex() / 2))
                     .setZIndex(20)
-                    .setImage(player.getAvatarToken());
+                    .setImage(player.getAvatarToken())
+                    .setAnchor(0.5);
 
         }
 
@@ -80,7 +79,6 @@ public class Referee extends AbstractReferee {
     }
 
     private void drawVictoryLine(int row1, int col1, int row2, int col2, Player winner) {
-
         graphicEntityModule.createLine()
                 .setX(convertX(col1))
                 .setY(convertY(row1))
@@ -121,7 +119,7 @@ public class Referee extends AbstractReferee {
 
     @Override
     public void gameTurn(int turn) {
-        Player player = gameManager.getPlayer(turn % 2);
+        Player player = gameManager.getPlayer(turn % gameManager.getPlayerCount());
 
         // Send inputs
         for (int l = 0; l < 3; l++) {
@@ -143,7 +141,8 @@ public class Referee extends AbstractReferee {
                 graphicEntityModule.createSprite()
                         .setX(convertX(targetCol))
                         .setY(convertY(targetRow))
-                        .setImage(player.getAvatarToken());
+                        .setImage(player.getAvatarToken())
+                        .setAnchor(0.5);
             }
 
             gameManager.addToGameSummary(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
