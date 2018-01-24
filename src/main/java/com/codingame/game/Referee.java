@@ -23,7 +23,7 @@ public class Referee extends AbstractReferee {
     public Properties init(Properties params) {
         // Display the background image. The asset image must be in the directory src/main/resources/view/assets
         graphicEntityModule.createSprite()
-                .setImage("Background.jpg");
+                .setImage("Background.jpg")
                 .setAnchor(0);
 
         for (Player player : gameManager.getPlayers()) {
