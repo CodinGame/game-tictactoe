@@ -5,9 +5,7 @@ import java.util.Properties;
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
 import com.codingame.gameengine.core.GameManager;
-import com.codingame.gameengine.module.entities.Curve;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
-import com.codingame.gameengine.module.entities.Sprite;
 import com.google.inject.Inject;
 
 public class Referee extends AbstractReferee {
@@ -140,18 +138,11 @@ public class Referee extends AbstractReferee {
                 player.setScore(-1);
                 gameManager.endGame();
             } else {
-                Sprite avatar = graphicEntityModule.createSprite()
+                graphicEntityModule.createSprite()
                         .setX(convertX(targetCol))
                         .setY(convertY(targetRow))
                         .setImage(player.getAvatarToken())
                         .setAnchor(0.5);
-                
-                // Animate arrival
-                avatar.setScale(0);
-                graphicEntityModule.commitEntityState(0, avatar);
-                avatar.setScale(1, Curve.ELASTIC);
-                graphicEntityModule.commitEntityState(1, avatar);
-                
             }
 
             gameManager.addToGameSummary(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
