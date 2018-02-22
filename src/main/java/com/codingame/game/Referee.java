@@ -43,7 +43,9 @@ public class Referee extends AbstractReferee {
                     .setY(90 + 100 * (player.getIndex() / 2))
                     .setZIndex(20)
                     .setImage(player.getAvatarToken())
-                    .setAnchor(0.5);
+                    .setAnchor(0.5)
+                    .setBaseHeight(116)
+                    .setBaseWidth(116);
 
         }
 
