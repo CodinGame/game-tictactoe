@@ -37,6 +37,16 @@ public class Referee extends AbstractReferee {
         graphicEntityModule.createSprite()
                 .setImage("Background.jpg")
                 .setAnchor(0);
+        graphicEntityModule.createSprite()
+                .setImage("logo.png")
+                .setX(280)
+                .setY(915)
+                .setAnchor(0.5);
+        graphicEntityModule.createSprite()
+                .setImage("logoCG.png")
+                .setX(1920 - 280)
+                .setY(915)
+                .setAnchor(0.5);
 
         drawHud();
         drawGrids();
@@ -55,40 +65,67 @@ public class Referee extends AbstractReferee {
     }
 
     private void drawGrids() {
-        int bigCellSize = 320;
+        int bigCellSize = 240;
         int bigOrigX = (int) Math.round(1920 / 2 - bigCellSize);
         int bigOrigY = (int) Math.round(1080 / 2 - bigCellSize);
         masterGrid = ticTacToeGridProvider.get();
-        masterGrid.draw(bigOrigX, bigOrigY, bigCellSize, 5, 0xffffff);
+        masterGrid.draw(bigOrigX, bigOrigY, bigCellSize, 5, 0xf9b700);
 
         if (gameManager.getLeagueLevel() == 2) {
             smallGrids = new TicTacToeGrid[3][3];
             
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    int cellSize = 75;
+                    int cellSize = 60;
                     int origX = bigOrigX + bigCellSize * i - cellSize;
                     int origY = bigOrigY + bigCellSize * j - cellSize;
                     smallGrids[j][i] = ticTacToeGridProvider.get();
-                    smallGrids[j][i].draw(origX, origY, cellSize, 2, 0xeeeeee);
+                    smallGrids[j][i].draw(origX, origY, cellSize, 3, 0xffffff);
                 }
             }
         }
+        graphicEntityModule
+            .createSprite()
+            .setImage("board_border.png")
+            .setX(1920 / 2)
+            .setY(1080 / 2)
+            .setAnchor(0.5);
     }
     
     private void drawHud() {
         for (Player player : gameManager.getPlayers()) {
+            int x = player.getIndex() == 0 ? 280 : 1920 - 280;
+            int y = 220;
+
+            graphicEntityModule
+                    .createRectangle()
+                    .setWidth(140)
+                    .setHeight(140)
+                    .setX(x - 70)
+                    .setY(y - 70)
+                    .setLineWidth(0)
+                    .setFillColor(player.getColorToken());
+
+            graphicEntityModule
+                    .createRectangle()
+                    .setWidth(120)
+                    .setHeight(120)
+                    .setX(x - 60)
+                    .setY(y - 60)
+                    .setLineWidth(0)
+                    .setFillColor(0xffffff);
+
             Text text = graphicEntityModule.createText(player.getNicknameToken())
-                    .setX(180 + (player.getIndex() % 2) * 1400)
-                    .setY(65 + 100 * (player.getIndex() / 2))
+                    .setX(x)
+                    .setY(y + 120)
                     .setZIndex(20)
-                    .setFontSize(50)
-                    .setFillColor(player.getColorToken())
-                    .setAnchor(0);
+                    .setFontSize(40)
+                    .setFillColor(0xffffff)
+                    .setAnchor(0.5);
 
             Sprite avatar = graphicEntityModule.createSprite()
-                    .setX(100 + (player.getIndex() % 2) * 1400)
-                    .setY(90 + 100 * (player.getIndex() / 2))
+                    .setX(x)
+                    .setY(y)
                     .setZIndex(20)
                     .setImage(player.getAvatarToken())
                     .setAnchor(0.5)
