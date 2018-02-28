@@ -7,7 +7,7 @@ export const demo = {
     name: 'Alice',
     avatar: 'https://www.codingame.com/servlet/fileservlet?id=' + 16085713250612 + '&format=viewer_avatar',
     type: 'CODINGAMER',
-    color: '#ffae16',
+    color: '#f2b213',
     typeData: {
       me: true,
       nickname: '[CG]Nonofr'
@@ -17,7 +17,7 @@ export const demo = {
     name: 'Bob',
     avatar: 'https://www.codingame.com/servlet/fileservlet?id=' + 16085756802960 + '&format=viewer_avatar',
     type: 'CODINGAMER',
-    color: '#ff1d5c',
+    color: '#22a1e4',
     typeData: {
       me: true,
       nickname: '[CG]Maxime'
@@ -61,6 +61,11 @@ export const demo = {
     "KEY_FRAME 34\n{\"entitymodule\":[\"C S\",\"C S\",\"U 18 0.1 v false C 22,88,19,84,20,92,96,21\",\"U 96 0.2 bw 60 sx 0 i circle.png ay 0.5 sy 0 ax 0.5 x 565 y 615 bh 60 t -2\",\"U 97 0.2 bw 256 sx 0 i circle.png ay 0.5 sy 0 ax 0.5 x 640 y 540 bh 256 t -2\",\"U 8 1 C 10,65,87,12,90,9,79,83,11,97\",\"U 97 1 sx 1 ~ sy 1 ~\",\"U 96 1 sx 1 ~ sy 1 ~\",\"U 4 1 a 0.3\"]}\n"
   ]
 };
+
+export const playerColors = [
+  '#f2b213', // yellow
+  '#22a1e4' // curious blue
+];
 
 export const modules = [
 	GraphicEntityModule

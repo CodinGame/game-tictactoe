@@ -1,8 +1,10 @@
 package com.codingame.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
@@ -18,13 +20,20 @@ public class Referee extends AbstractReferee {
     @Inject private GraphicEntityModule graphicEntityModule;
     @Inject private Provider<TicTacToeGrid> ticTacToeGridProvider;
 
-    TicTacToeGrid masterGrid;
-    TicTacToeGrid[][] smallGrids;
+    private TicTacToeGrid masterGrid;
+    private TicTacToeGrid[][] smallGrids;
     private Action lastAction = null;
     private List<Action> validActions;
+    private Random random;
     
     @Override
     public Properties init(Properties params) {
+        try {
+            long seed = Long.valueOf(params.getProperty("seed"));
+            random = new Random(seed);
+        } catch(Exception e) {
+            random = new Random(0);
+        }
         graphicEntityModule.createSprite()
                 .setImage("Background.jpg")
                 .setAnchor(0);
@@ -143,6 +152,7 @@ public class Referee extends AbstractReferee {
                 }
             }
         }
+        Collections.shuffle(validActions, random);
         return validActions;
     }
 
