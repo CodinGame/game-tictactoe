@@ -34,20 +34,8 @@ public class Referee extends AbstractReferee {
         } catch(Exception e) {
             random = new Random(0);
         }
-        graphicEntityModule.createSprite()
-                .setImage("Background.jpg")
-                .setAnchor(0);
-        graphicEntityModule.createSprite()
-                .setImage("logo.png")
-                .setX(280)
-                .setY(915)
-                .setAnchor(0.5);
-        graphicEntityModule.createSprite()
-                .setImage("logoCG.png")
-                .setX(1920 - 280)
-                .setY(915)
-                .setAnchor(0.5);
 
+        drawBackground();
         drawHud();
         drawGrids();
 
@@ -62,6 +50,22 @@ public class Referee extends AbstractReferee {
         validActions = getValidActions();
 
         return params;
+    }
+
+    private void drawBackground() {
+        graphicEntityModule.createSprite()
+                .setImage("Background.jpg")
+                .setAnchor(0);
+        graphicEntityModule.createSprite()
+                .setImage("logo.png")
+                .setX(280)
+                .setY(915)
+                .setAnchor(0.5);
+        graphicEntityModule.createSprite()
+                .setImage("logoCG.png")
+                .setX(1920 - 280)
+                .setY(915)
+                .setAnchor(0.5);
     }
 
     private void drawGrids() {
