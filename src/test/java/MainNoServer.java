@@ -1,12 +1,13 @@
 import com.codingame.gameengine.runner.GameRunner;
 import com.codingame.gameengine.runner.dto.GameScore;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class MainNoServer {
 
     public static void main(String[] args) {
-        String currentDirectory = System.getProperty("user.dir");
-        String separator = System.getProperty("file.separator");
-        String testClassesDirectory = currentDirectory + separator + "target" + separator + "test-classes";
+        Path testClassesDirectory = Paths.get(System.getProperty("user.dir"), "target", "test-classes");
         String commandLine = "java -cp " + testClassesDirectory;
         int gameCount = 5;
 
