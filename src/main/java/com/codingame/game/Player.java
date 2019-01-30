@@ -1,9 +1,9 @@
 package com.codingame.game;
 
-import com.codingame.gameengine.core.AbstractPlayer;
+import com.codingame.gameengine.core.AbstractMultiplayerPlayer;
 import com.codingame.gameengine.module.entities.Group;
 
-public class Player extends AbstractPlayer {
+public class Player extends AbstractMultiplayerPlayer {
     public Group hud;
     
     @Override
