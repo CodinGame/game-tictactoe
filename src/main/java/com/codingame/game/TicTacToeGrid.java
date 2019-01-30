@@ -122,6 +122,7 @@ public class TicTacToeGrid {
 
     public void hide() {
         this.entity.setAlpha(0);
+        this.entity.setVisible(false);
     }
 
     public void activate() {
