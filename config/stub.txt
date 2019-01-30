@@ -3,3 +3,14 @@ read opponentRow:int opponentCol:int
 read validActionCount:int
 loop validActionCount read row:int col:int
 write 0 0
+
+STATEMENT
+Get 3 cells in a row!
+
+INPUT
+opponentRow: The coordinates of your opponent's last move
+validActionCount: the number of possible actions for your next move
+row: The coordinates of a possible next move
+
+OUTPUT
+<row> <column>
