@@ -2,26 +2,31 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Player2 {
+    static class Action {
+        int row, col;
+        public Action(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+    
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int myId = scanner.nextInt();
-        int[][] grid = new int[3][3];
-        Random random = new Random();
+        Scanner in = new Scanner(System.in);
+        Random random = new Random(0);
 
         while (true) {
-            for (int r = 0; r < 3; r++) {
-                for (int c = 0; c < 3; c++) {
-                    grid[r][c] = scanner.nextInt();
-                }
+            int opponentRow = in.nextInt();
+            int opponentCol = in.nextInt();
+            int validActionCount = in.nextInt();
+
+            int row = 0;
+            int col = 0;
+            for (int i = 0; i < validActionCount; i++) {
+                row = in.nextInt();
+                col = in.nextInt();
             }
-
-            int r, c;
-            do {
-                r = random.nextInt(3);
-                c = random.nextInt(3);
-            } while (grid[r][c] != 0);
-
-            System.out.println(String.format("%d %d", r, c));
+            
+            System.out.println(String.format("%d %d", row, col));
         }
     }
 }

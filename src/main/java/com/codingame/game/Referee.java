@@ -1,6 +1,10 @@
 package com.codingame.game;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
@@ -8,177 +12,258 @@ import com.codingame.gameengine.core.GameManager;
 import com.codingame.gameengine.module.entities.Curve;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Sprite;
+import com.codingame.gameengine.module.entities.Text;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class Referee extends AbstractReferee {
     @Inject private GameManager<Player> gameManager;
     @Inject private GraphicEntityModule graphicEntityModule;
-    private int[][] grid = new int[3][3];
+    @Inject private Provider<TicTacToeGrid> ticTacToeGridProvider;
 
-    private static final int CELL_SIZE = 250;
-    private static final int LINE_WIDTH = 10;
-    private static final int LINE_COLOR = 0xff0000;
-    private static final int GRID_ORIGIN_Y = (int) Math.round(1080 / 2 - CELL_SIZE);
-    private static final int GRID_ORIGIN_X = (int) Math.round(1920 / 2 - CELL_SIZE);
-
+    private TicTacToeGrid masterGrid;
+    private TicTacToeGrid[][] smallGrids;
+    private Action lastAction = null;
+    private List<Action> validActions;
+    private Random random;
+    
     @Override
     public Properties init(Properties params) {
-        // Display the background image. The asset image must be in the directory src/main/resources/view/assets
+        try {
+            long seed = Long.valueOf(params.getProperty("seed"));
+            random = new Random(seed);
+        } catch(Exception e) {
+            random = new Random(0);
+        }
+
+        drawBackground();
+        drawHud();
+        drawGrids();
+
+        gameManager.setFrameDuration(600);
+
+        if (gameManager.getLeagueLevel() == 1) {
+            gameManager.setMaxTurns(9);
+        } else {
+            gameManager.setMaxTurns(9 * 9);
+        }
+        
+        validActions = getValidActions();
+
+        return params;
+    }
+
+    private void drawBackground() {
         graphicEntityModule.createSprite()
                 .setImage("Background.jpg")
                 .setAnchor(0);
+        graphicEntityModule.createSprite()
+                .setImage("logo.png")
+                .setX(280)
+                .setY(915)
+                .setAnchor(0.5);
+        graphicEntityModule.createSprite()
+                .setImage("logoCG.png")
+                .setX(1920 - 280)
+                .setY(915)
+                .setAnchor(0.5);
+    }
 
+    private void drawGrids() {
+        int bigCellSize = 240;
+        int bigOrigX = (int) Math.round(1920 / 2 - bigCellSize);
+        int bigOrigY = (int) Math.round(1080 / 2 - bigCellSize);
+        masterGrid = ticTacToeGridProvider.get();
+        masterGrid.draw(bigOrigX, bigOrigY, bigCellSize, 5, 0xf9b700);
+
+        if (gameManager.getLeagueLevel() == 2) {
+            smallGrids = new TicTacToeGrid[3][3];
+            
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    int cellSize = 60;
+                    int origX = bigOrigX + bigCellSize * i - cellSize;
+                    int origY = bigOrigY + bigCellSize * j - cellSize;
+                    smallGrids[j][i] = ticTacToeGridProvider.get();
+                    smallGrids[j][i].draw(origX, origY, cellSize, 3, 0xffffff);
+                }
+            }
+        }
+        graphicEntityModule
+            .createSprite()
+            .setImage("board_border.png")
+            .setX(1920 / 2)
+            .setY(1080 / 2)
+            .setAnchor(0.5);
+    }
+    
+    private void drawHud() {
         for (Player player : gameManager.getPlayers()) {
-            player.sendInputLine(String.format("%d", player.getIndex() + 1));
-            graphicEntityModule.createText(player.getNicknameToken())
-                    .setX(180 + (player.getIndex() % 2) * 1400)
-                    .setY(50 + 100 * (player.getIndex() / 2))
-                    .setZIndex(20)
-                    .setFontSize(90)
-                    .setFillColor(player.getColorToken())
-                    .setAnchor(0);
+            int x = player.getIndex() == 0 ? 280 : 1920 - 280;
+            int y = 220;
 
-            graphicEntityModule.createSprite()
-                    .setX(100 + (player.getIndex() % 2) * 1400)
-                    .setY(90 + 100 * (player.getIndex() / 2))
+            graphicEntityModule
+                    .createRectangle()
+                    .setWidth(140)
+                    .setHeight(140)
+                    .setX(x - 70)
+                    .setY(y - 70)
+                    .setLineWidth(0)
+                    .setFillColor(player.getColorToken());
+
+            graphicEntityModule
+                    .createRectangle()
+                    .setWidth(120)
+                    .setHeight(120)
+                    .setX(x - 60)
+                    .setY(y - 60)
+                    .setLineWidth(0)
+                    .setFillColor(0xffffff);
+
+            Text text = graphicEntityModule.createText(player.getNicknameToken())
+                    .setX(x)
+                    .setY(y + 120)
+                    .setZIndex(20)
+                    .setFontSize(40)
+                    .setFillColor(0xffffff)
+                    .setAnchor(0.5);
+
+            Sprite avatar = graphicEntityModule.createSprite()
+                    .setX(x)
+                    .setY(y)
                     .setZIndex(20)
                     .setImage(player.getAvatarToken())
                     .setAnchor(0.5)
                     .setBaseHeight(116)
                     .setBaseWidth(116);
 
+            player.hud = graphicEntityModule.createGroup(text, avatar);
+        }
+    }
+
+    private void sendInputs(Player player, List<Action> validActions) {
+        // last action
+        if (lastAction != null) {
+            player.sendInputLine(lastAction.toString());
+        } else {
+            player.sendInputLine("-1 -1");
         }
 
-        gameManager.setFrameDuration(500);
-
-        drawGrid();
-
-        return params;
-    }
-
-    private int convertX(double unit) {
-        return (int) (GRID_ORIGIN_X + unit * CELL_SIZE);
-    }
-
-    private int convertY(double unit) {
-        return (int) (GRID_ORIGIN_Y + unit * CELL_SIZE);
-    }
-
-    private void drawGrid() {
-        double xs[] = new double[] { 0, 0, 1, 2 };
-        double x2s[] = new double[] { 2, 2, 0, 1 };
-        double ys[] = new double[] { 1, 2, 0, 0 };
-        double y2s[] = new double[] { 0, 1, 2, 2 };
-
-        for (int i = 0; i < 4; ++i) {
-            graphicEntityModule.createLine()
-                    .setX(convertX(xs[i] - 0.5))
-                    .setX2(convertX(x2s[i] + 0.5))
-                    .setY(convertY(ys[i] - 0.5))
-                    .setY2(convertY(y2s[i] + 0.5))
-                    .setLineWidth(LINE_WIDTH)
-                    .setLineColor(LINE_COLOR);
+        // valid actions
+        player.sendInputLine(Integer.toString(validActions.size()));
+        for (Action action : validActions) {
+            player.sendInputLine(action.toString());    
         }
-
     }
 
-    private void drawVictoryLine(int row1, int col1, int row2, int col2, Player winner) {
-        graphicEntityModule.createLine()
-                .setX(convertX(col1))
-                .setY(convertY(row1))
-                .setX2(convertX(col2))
-                .setY2(convertY(row2))
-                .setLineWidth(LINE_WIDTH)
-                .setLineColor(winner.getColorToken())
-                .setZIndex(30);
+    private void setWinner(Player player) {
+        gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
+        player.setScore(10);
+        endGame();
     }
 
-    private int checkWinner() {
-        for (int i = 0; i < 3; i++) {
-            // check rows
-            if (grid[i][0] > 0 && grid[i][0] == grid[i][1] && grid[i][0] == grid[i][2]) {
-                drawVictoryLine(i, 0, i, 2, gameManager.getPlayer(grid[i][0] - 1));
-                return grid[i][0];
+    private List<Action> getValidActions() {
+        List<Action> validActions;
+        if (gameManager.getLeagueLevel() == 1) {
+            validActions = masterGrid.getValidActions();
+        } else {
+            validActions = new ArrayList<>();
+
+            for (int row = 0; row < 3; row++) {
+                for (int col = 0; col < 3; col++) {
+                    smallGrids[row][col].deactivate();
+                }
             }
-
-            // check cols
-            if (grid[0][i] > 0 && grid[0][i] == grid[1][i] && grid[0][i] == grid[2][i]) {
-                drawVictoryLine(0, i, 2, i, gameManager.getPlayer(grid[0][i] - 1));
-                return grid[0][i];
+            
+            if (lastAction != null) {
+                TicTacToeGrid grid = smallGrids[lastAction.row % 3][lastAction.col % 3];
+                for (Action action : grid.getValidActions()) {
+                    validActions.add(new Action(null, (lastAction.row % 3) * 3 + action.row, (lastAction.col % 3) * 3 + action.col));
+                }
+                grid.activate();
+            }
+            if (validActions.isEmpty()) {
+                for (int row = 0; row < 3; row++) {
+                    for (int col = 0; col < 3; col++) {
+                        TicTacToeGrid grid = smallGrids[row][col];
+                        grid.activate();
+                        for (Action action : grid.getValidActions()) {
+                            validActions.add(new Action(null, row * 3 + action.row, col * 3 + action.col));
+                        }
+                    }
+                }
             }
         }
-
-        // check diags
-        if (grid[0][0] > 0 && grid[0][0] == grid[1][1] && grid[0][0] == grid[2][2]) {
-            drawVictoryLine(0, 0, 2, 2, gameManager.getPlayer(grid[0][0] - 1));
-            return grid[0][0];
-        }
-        if (grid[2][0] > 0 && grid[2][0] == grid[1][1] && grid[2][0] == grid[0][2]) {
-            drawVictoryLine(2, 0, 0, 2, gameManager.getPlayer(grid[1][1] - 1));
-            return grid[2][0];
-        }
-
-        return 0;
+        Collections.shuffle(validActions, random);
+        return validActions;
     }
 
     @Override
     public void gameTurn(int turn) {
         Player player = gameManager.getPlayer(turn % gameManager.getPlayerCount());
-
-        // Send inputs
-        for (int l = 0; l < 3; l++) {
-            player.sendInputLine(String.format("%d %d %d", grid[l][0], grid[l][1], grid[l][2]));
-        }
+        
+        sendInputs(player, validActions);
         player.execute();
 
         // Read inputs
         try {
-            String[] output = player.getOutputs().get(0).split(" ");
-            int targetRow = Integer.parseInt(output[0]);
-            int targetCol = Integer.parseInt(output[1]);
+            final Action action = player.getAction();
+            gameManager.addToGameSummary(String.format("Player %s played (%d %d)", action.player.getNicknameToken(), action.row, action.col));
 
-            if (targetRow < 0 || targetRow >= 3 || targetCol < 0 || targetCol >= 3 || grid[targetRow][targetCol] != 0) {
-                player.deactivate("Invalid action.");
-                player.setScore(-1);
-                gameManager.endGame();
-            } else {
-                Sprite avatar = graphicEntityModule.createSprite()
-                        .setX(convertX(targetCol))
-                        .setY(convertY(targetRow))
-                        .setImage(player.getAvatarToken())
-                        .setAnchor(0.5);
-                
-                // Animate arrival
-                avatar.setScale(0);
-                graphicEntityModule.commitEntityState(0, avatar);
-                avatar.setScale(1, Curve.ELASTIC);
-                graphicEntityModule.commitEntityState(1, avatar);
-                
+            if (!validActions.contains(action)) {
+                throw new InvalidAction("Invalid action.");
             }
 
-            gameManager.addToGameSummary(String.format("Player %s played (%d %d)", player.getNicknameToken(), targetRow, targetCol));
+            lastAction = action;
 
-            // update grid
-            grid[targetRow][targetCol] = player.getIndex() + 1;
+            final TicTacToeGrid grid;
+            if (gameManager.getLeagueLevel() == 1) {
+                int winner = masterGrid.play(action);
+                if (winner > 0) {
+                    setWinner(player);
+                }
+            } else {
+                grid = smallGrids[action.row / 3][action.col / 3];
+                if (grid.play(new Action(action.player, action.row % 3, action.col % 3)) > 0) {
+                    player.setScore(player.getScore() + 1);
+                    gameManager.addTooltip(player, "Won one cell");
+                    grid.hide();
+                    if (masterGrid.play(new Action(action.player, action.row / 3, action.col / 3)) > 0) {
+                        setWinner(player);
+                    }
+                }
+            }
 
+            validActions = getValidActions();
+            if (validActions.isEmpty()) {
+                endGame();
+            }
         } catch (NumberFormatException e) {
             player.deactivate("Wrong output!");
             player.setScore(-1);
-            gameManager.endGame();
+            endGame();
         } catch (TimeoutException e) {
             gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
             player.deactivate(player.getNicknameToken() + " timeout!");
             player.setScore(-1);
-            gameManager.endGame();
+            endGame();
+        } catch (InvalidAction e) {
+            player.deactivate(e.getMessage());
+            player.setScore(-1);
+            endGame();
         }
+    }
 
-        // check winner
-        int winner = checkWinner();
-        if (winner > 0) {
-            gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
+    private void endGame() {
+        gameManager.endGame();
 
-            gameManager.getPlayer(winner - 1).setScore(1);
-            gameManager.endGame();
+        Player p0 = gameManager.getPlayers().get(0);
+        Player p1 = gameManager.getPlayers().get(1);
+        if (p0.getScore() > p1.getScore()) {
+            p1.hud.setAlpha(0.3);
+        }
+        if (p0.getScore() < p1.getScore()) {
+            p0.hud.setAlpha(0.3);
         }
     }
 }
