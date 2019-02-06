@@ -9,6 +9,11 @@ public class Main {
         
         // gameRunner.addAgent("python3 /home/user/player.py");
         
+        // The first league is classic tic-tac-toe
+        gameRunner.setLeagueLevel(1);
+        // The second league is ultimate tic-tac-toe
+        // gameRunner.setLeagueLevel(2);
+        
         gameRunner.start();
     }
 }
